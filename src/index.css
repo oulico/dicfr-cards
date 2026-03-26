@@ -1,0 +1,241 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  color: #111;
+  background: #fff;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 16px;
+  min-height: 100dvh;
+}
+
+.app-header {
+  padding: 16px 0 12px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.app-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+.nav-btn {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 4px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  color: #666;
+}
+.nav-btn:hover { background: #f5f5f5; }
+
+.study-prompt {
+  text-align: center;
+  padding: 32px 0;
+}
+.due-count {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 16px;
+}
+.all-done {
+  font-size: 16px;
+  color: #888;
+  padding: 20px 0;
+}
+.btn-study {
+  padding: 12px 32px;
+  background: #1a1a2e;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.btn-study:hover { background: #2a2a4e; }
+
+.drop-zone {
+  border: 2px dashed #ddd;
+  border-radius: 12px;
+  padding: 40px 20px;
+  text-align: center;
+  color: #aaa;
+  transition: border-color 0.2s, background 0.2s;
+}
+.drop-zone.active {
+  border-color: #4a9;
+  background: #f0faf5;
+}
+.file-label {
+  display: block;
+  margin-top: 8px;
+  color: #2563eb;
+  cursor: pointer;
+  font-size: 13px;
+}
+.file-label input { display: none; }
+.error { color: #c44; font-size: 13px; margin-top: 8px; text-align: center; }
+
+.card-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding-top: 20px;
+}
+.progress {
+  font-size: 13px;
+  color: #aaa;
+}
+
+.card {
+  width: 100%;
+  height: 240px;
+  perspective: 800px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  text-align: center;
+}
+.card.flipped { cursor: default; }
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.4s;
+  transform-style: preserve-3d;
+}
+.card.flipped .card-inner {
+  transform: rotateY(180deg);
+}
+.card-front, .card-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.card-back {
+  transform: rotateY(180deg);
+}
+.card-word {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+.card-meta {
+  font-size: 13px;
+  color: #888;
+  margin-top: 4px;
+}
+.card-hint {
+  font-size: 12px;
+  color: #ccc;
+  margin-top: 16px;
+}
+.card-definition {
+  font-size: 18px;
+  color: #333;
+  line-height: 1.5;
+}
+
+.rating-buttons {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+.rating-buttons button {
+  flex: 1;
+  padding: 12px 0;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #fff;
+}
+.rate-again { background: #e55; }
+.rate-hard  { background: #e90; }
+.rate-good  { background: #4a9; }
+.rate-easy  { background: #48f; }
+.rate-again:hover { background: #d44; }
+.rate-hard:hover  { background: #d80; }
+.rate-good:hover  { background: #3a8; }
+.rate-easy:hover  { background: #37e; }
+
+.summary {
+  text-align: center;
+  padding: 32px 0;
+}
+.summary h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 24px;
+}
+.stats-grid {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+.stat-label {
+  font-size: 12px;
+  color: #888;
+  margin-top: 4px;
+}
+.summary-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.btn-export {
+  padding: 12px;
+  background: #1a1a2e;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+}
+.btn-export:hover { background: #2a2a4e; }
+.btn-restart, .btn-home {
+  padding: 10px;
+  background: #fff;
+  color: #555;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.btn-restart:hover, .btn-home:hover { background: #f5f5f5; }
