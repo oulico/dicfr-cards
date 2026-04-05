@@ -1,13 +1,18 @@
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
 import { useSettingsStore } from '../store/useSettingsStore';
+import { useClassroomStore } from '../store/useClassroomStore';
 
 import { useCardStore } from '../store/useCardStore';
-import { startGoogleLogin, syncPush, syncPull } from '../lib/api';
+import { startGoogleLogin, syncPush, syncPull, getStoredAuth } from '../lib/api';
 
 export function SettingsPage() {
   const { user, isAuthenticated, logout } = useAuthStore();
-  const { darkMode, dailyGoal, dailyGoalType, setDarkMode, setDailyGoal, setDailyGoalType } = useSettingsStore();
+  const { darkMode, dailyGoal, dailyGoalType, notificationsEnabled, setDarkMode, setDailyGoal, setDailyGoalType, setNotificationsEnabled } = useSettingsStore();
+  const { classrooms, fetchClassrooms, joinClassroom, createClassroom } = useClassroomStore();
   const { words } = useCardStore();
+  const [inviteCodeInput, setInviteCodeInput] = useState('');
+  const [joining, setJoining] = useState(false);
 
   const handleSignIn = () => {
     startGoogleLogin();
@@ -26,6 +31,50 @@ export function SettingsPage() {
       console.log('Synced successfully');
     } catch (error) {
       console.error('Sync failed:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      const auth = getStoredAuth();
+      if (auth) {
+        fetchClassrooms(auth.token);
+      }
+    }
+  }, [isAuthenticated, fetchClassrooms]);
+
+  const handleJoinClassroom = async () => {
+    if (!inviteCodeInput.trim() || !isAuthenticated) return;
+
+    setJoining(true);
+    try {
+      const auth = getStoredAuth();
+      if (auth) {
+        await joinClassroom(auth.token, inviteCodeInput.trim());
+        setInviteCodeInput('');
+      }
+    } catch (error) {
+      console.error('Failed to join classroom:', error);
+      alert('Failed to join classroom. Please check the invite code and try again.');
+    } finally {
+      setJoining(false);
+    }
+  };
+
+  const handleCreateClassroom = async () => {
+    if (!isAuthenticated) return;
+
+    const name = prompt('Enter classroom name:');
+    if (name && name.trim()) {
+      try {
+        const auth = getStoredAuth();
+        if (auth) {
+          await createClassroom(auth.token, name.trim());
+        }
+      } catch (error) {
+        console.error('Failed to create classroom:', error);
+        alert('Failed to create classroom. Please try again.');
+      }
     }
   };
 
@@ -53,6 +102,55 @@ export function SettingsPage() {
           </button>
         )}
       </section>
+
+      {isAuthenticated && (
+        <section className="settings-section">
+          <h3 className="section-title">Classroom</h3>
+          <div className="setting-row">
+            <label htmlFor="invite-code" className="setting-label">
+              Join Classroom
+            </label>
+            <input
+              id="invite-code"
+              type="text"
+              className="setting-input"
+              placeholder="Invite code"
+              value={inviteCodeInput}
+              onChange={(e) => setInviteCodeInput(e.target.value)}
+            />
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={handleJoinClassroom}
+              disabled={joining || !inviteCodeInput.trim()}
+            >
+              {joining ? 'Joining...' : 'Join'}
+            </button>
+          </div>
+          <div className="setting-row">
+            <span className="setting-label">Create Classroom</span>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={handleCreateClassroom}
+            >
+              Create
+            </button>
+          </div>
+          {classrooms.length > 0 && (
+            <div className="classroom-list">
+              {classrooms.map((classroom) => (
+                <div key={classroom.id} className="classroom-item">
+                  <div className="classroom-name">{classroom.name}</div>
+                  <span className={`classroom-role ${classroom.role}`}>
+                    {classroom.role === 'teacher' ? 'Teacher' : 'Student'}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       <section className="settings-section">
         <h3 className="section-title">Study Preferences</h3>
@@ -119,6 +217,40 @@ export function SettingsPage() {
               onClick={() => setDarkMode('dark')}
             >
               Dark
+            </button>
+          </div>
+        </div>
+        <div className="setting-row">
+          <span className="setting-label">Daily Reminder</span>
+          <div className="setting-toggle">
+            <button
+              type="button"
+              className={`toggle-option ${!notificationsEnabled ? 'active' : ''}`}
+              onClick={() => {
+                setNotificationsEnabled(false);
+                (async () => {
+                  const { cancelDailyReminder } = await import('../lib/notifications');
+                  await cancelDailyReminder();
+                })();
+              }}
+            >
+              Off
+            </button>
+            <button
+              type="button"
+              className={`toggle-option ${notificationsEnabled ? 'active' : ''}`}
+              onClick={async () => {
+                setNotificationsEnabled(true);
+                const { requestNotificationPermission, scheduleDailyReminder } = await import('../lib/notifications');
+                const granted = await requestNotificationPermission();
+                if (granted) {
+                  await scheduleDailyReminder();
+                } else {
+                  alert('Notification permission denied. Please enable notifications in your device settings.');
+                }
+              }}
+            >
+              On
             </button>
           </div>
         </div>

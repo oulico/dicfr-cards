@@ -3,6 +3,26 @@
 All notable changes to dicfr-cards will be documented in this file.
 
 ## [0.2.0.0] - 2026-04-05
+## [0.3.0.0] - 2026-04-05
+
+### Added
+- Teacher dashboard with student progress tracking (streak, retention, cards due)
+- Classroom system with invite codes and join flow
+- Vocabulary sharing via time-limited share links (30-day expiry)
+- Share import page for students receiving shared vocab
+- Push notifications for streak reminders (Capacitor LocalNotifications)
+- Exportable progress report with print-friendly layout
+- Card UUID identity system for future cross-device/sharing consistency
+- Classroom management in Settings (create, join, list)
+- Notification preferences toggle in Settings
+- Dashboard tab in navigation (visible when user has classrooms)
+
+### Changed
+- API client extended with classroom, sharing, and invite endpoints
+- Sync endpoint sends v2 format with study days and review logs
+- Tab bar dynamically shows/hides Dashboard based on classroom membership
+- Settings page reorganized with Classroom section
+
 
 ### Added
 - FSRS adaptive spaced repetition algorithm (replaces SM-2) via `ts-fsrs`

@@ -1,12 +1,14 @@
 import { useMemo, useState } from 'react';
 import { useCardStore } from '../store/useCardStore';
 import { useStreakStore } from '../store/useStreakStore';
+import { ExportReport } from '../components/ExportReport';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export function AnalyticsPage() {
   const { words, reviewLogs } = useCardStore();
   const { studyDays } = useStreakStore();
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const [showExportReport, setShowExportReport] = useState(false);
 
   const hasData = words.length > 0;
 
@@ -84,6 +86,21 @@ export function AnalyticsPage() {
   return (
     <div className="analytics-page">
       <h2 className="page-title">Learning Analytics</h2>
+
+      {hasData && (
+        <button
+          type="button"
+          className="btn-secondary"
+          onClick={() => setShowExportReport(true)}
+          style={{ alignSelf: 'flex-start' }}
+        >
+          Export Report
+        </button>
+      )}
+
+      {showExportReport && (
+        <ExportReport isOpen={showExportReport} onClose={() => setShowExportReport(false)} />
+      )}
 
       {insights && (
         <div className="insights-section">

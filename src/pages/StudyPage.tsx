@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import type { Grade } from 'ts-fsrs';
 import { useCardStore } from '../store/useCardStore';
 import { useStreakStore } from '../store/useStreakStore';
+import { useSettingsStore } from '../store/useSettingsStore';
 import { CardView } from '../components/CardView';
 import { SessionTimer } from '../components/SessionTimer';
+import { rescheduleReminder } from '../lib/notifications';
 
 interface SessionResult {
   total: number;
@@ -18,6 +20,7 @@ export function StudyPage() {
   const navigate = useNavigate();
   const { reviewQueue } = useCardStore();
   const { recordStudy } = useStreakStore();
+  const { notificationsEnabled } = useSettingsStore();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [session, setSession] = useState<SessionResult | null>(null);
   const [ratingDisabled, setRatingDisabled] = useState(false);
@@ -79,10 +82,14 @@ export function StudyPage() {
         };
         recordStudy(studyDay);
 
+        if (notificationsEnabled) {
+          rescheduleReminder();
+        }
+
         navigate('/summary', { state: newSession });
       }
     },
-    [session, ratingDisabled, reviewQueue, currentIndex, navigate, recordStudy]
+    [session, ratingDisabled, reviewQueue, currentIndex, navigate, recordStudy, notificationsEnabled]
   );
 
   if (!reviewQueue[currentIndex]) return null;

@@ -36,6 +36,7 @@ function migrateWord(word: ExportWordV1): ExportWordV2 {
   return {
     ...baseWord,
     fsrsCard: createEmptySerializedCard(),
+    cardId: crypto.randomUUID(),
   };
 }
 
@@ -59,6 +60,7 @@ export function migrateData(data: ExportData): ExportDataV2 {
         firstLookupAt: (w.firstLookupAt as string) || new Date().toISOString(),
         lastLookupAt: (w.lastLookupAt as string) || new Date().toISOString(),
         fsrsCard: createEmptySerializedCard(),
+        cardId: crypto.randomUUID(),
       } satisfies ExportWordV2;
     }
 
