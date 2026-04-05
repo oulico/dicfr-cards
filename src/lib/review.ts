@@ -1,17 +1,17 @@
-import type { ExportWord } from "./types";
+import type { ExportWordV2 } from "./types";
+import { deserializeCard } from "./fsrs";
 
-export function getReviewQueue(words: ExportWord[]): ExportWord[] {
-  const now = new Date().toISOString();
+export function getReviewQueue(words: ExportWordV2[]): ExportWordV2[] {
+  const now = new Date();
 
   return words
     .filter((w) => {
-      if (!w.nextReviewAt) return true;
-      return w.nextReviewAt <= now;
+      const card = deserializeCard(w.fsrsCard);
+      return card.due <= now;
     })
     .sort((a, b) => {
-      if (!a.nextReviewAt && !b.nextReviewAt) return 0;
-      if (!a.nextReviewAt) return -1;
-      if (!b.nextReviewAt) return 1;
-      return a.nextReviewAt.localeCompare(b.nextReviewAt);
+      const cardA = deserializeCard(a.fsrsCard);
+      const cardB = deserializeCard(b.fsrsCard);
+      return cardA.due.getTime() - cardB.due.getTime();
     });
 }
