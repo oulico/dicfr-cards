@@ -1,4 +1,4 @@
-import type { ExportData, ExportWord } from "./types";
+import type { ExportData, ExportWord, StudyDay, SerializedReviewLog } from "./types";
 
 const API_URL = "https://dicfr-api.manemis.workers.dev";
 const CLIENT_ID = "353654892895-6cdoksihfk46ljtanobl0sp1ia88it1g.apps.googleusercontent.com";
@@ -65,7 +65,7 @@ export function logout() {
   localStorage.removeItem(USER_KEY);
 }
 
-export async function syncPush(words: ExportWord[]): Promise<{ synced: number }> {
+export async function syncPush(words: ExportWord[], studyDays?: StudyDay[], reviewLogs?: SerializedReviewLog[]): Promise<{ synced: number }> {
   const auth = getStoredAuth();
   if (!auth) throw new Error("Not logged in");
 
@@ -75,7 +75,7 @@ export async function syncPush(words: ExportWord[]): Promise<{ synced: number }>
       "Content-Type": "application/json",
       Authorization: `Bearer ${auth.token}`,
     },
-    body: JSON.stringify({ words }),
+    body: JSON.stringify({ words, studyDays, reviewLogs }),
   });
   if (!res.ok) throw new Error(`Push failed: ${res.status}`);
   return res.json() as Promise<{ synced: number }>;
@@ -89,5 +89,9 @@ export async function syncPull(): Promise<ExportData> {
     headers: { Authorization: `Bearer ${auth.token}` },
   });
   if (!res.ok) throw new Error(`Pull failed: ${res.status}`);
-  return res.json() as Promise<ExportData>;
+  const data = await res.json() as ExportData;
+  if (data.version === 1) {
+    return data;
+  }
+  return data as ExportData;
 }
