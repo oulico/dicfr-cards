@@ -1,6 +1,10 @@
 import { NavLink } from 'react-router-dom';
+import { useClassroomStore } from '../store/useClassroomStore';
 
 export function TabBar() {
+  const { classrooms } = useClassroomStore();
+  const hasClassrooms = classrooms.length > 0;
+
   return (
     <nav className="tab-bar">
       <NavLink to="/" className="tab-link" end>
@@ -15,6 +19,12 @@ export function TabBar() {
         <span className="tab-icon">📊</span>
         <span className="tab-label">Analytics</span>
       </NavLink>
+      {hasClassrooms && (
+        <NavLink to="/dashboard" className="tab-link">
+          <span className="tab-icon">👥</span>
+          <span className="tab-label">Classroom</span>
+        </NavLink>
+      )}
       <NavLink to="/settings" className="tab-link">
         <span className="tab-icon">⚙️</span>
         <span className="tab-label">Settings</span>

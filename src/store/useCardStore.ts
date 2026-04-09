@@ -49,7 +49,10 @@ export const useCardStore = create<CardState & CardActions>()(
               lastLookupAt: existing.lastLookupAt > word.lastLookupAt ? existing.lastLookupAt : word.lastLookupAt,
             });
           } else {
-            existingMap.set(word.normalizedWord, word);
+            existingMap.set(word.normalizedWord, {
+              ...word,
+              cardId: word.cardId || crypto.randomUUID(),
+            });
           }
         }
 

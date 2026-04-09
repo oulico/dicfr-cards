@@ -1,4 +1,4 @@
-import type { ExportData, ExportWord, StudyDay, SerializedReviewLog } from "./types";
+import type { ExportData, StudyDay, SerializedReviewLog, ExportWordV2 } from "./types";
 
 const API_URL = "https://dicfr-api.manemis.workers.dev";
 const CLIENT_ID = "353654892895-6cdoksihfk46ljtanobl0sp1ia88it1g.apps.googleusercontent.com";
@@ -65,7 +65,7 @@ export function logout() {
   localStorage.removeItem(USER_KEY);
 }
 
-export async function syncPush(words: ExportWord[], studyDays?: StudyDay[], reviewLogs?: SerializedReviewLog[]): Promise<{ synced: number }> {
+export async function syncPush(words: ExportWordV2[], studyDays?: StudyDay[], reviewLogs?: SerializedReviewLog[]): Promise<{ synced: number }> {
   const auth = getStoredAuth();
   if (!auth) throw new Error("Not logged in");
 
@@ -75,7 +75,7 @@ export async function syncPush(words: ExportWord[], studyDays?: StudyDay[], revi
       "Content-Type": "application/json",
       Authorization: `Bearer ${auth.token}`,
     },
-    body: JSON.stringify({ words, studyDays, reviewLogs }),
+    body: JSON.stringify({ version: 2, words, studyDays, reviewLogs }),
   });
   if (!res.ok) throw new Error(`Push failed: ${res.status}`);
   return res.json() as Promise<{ synced: number }>;
@@ -94,4 +94,100 @@ export async function syncPull(): Promise<ExportData> {
     return data;
   }
   return data as ExportData;
+}
+
+export interface Classroom {
+  id: string;
+  name: string;
+  inviteCode: string;
+  role: 'teacher' | 'student';
+  teacherName?: string;
+}
+
+export interface ClassroomStudent {
+  email: string;
+  name: string;
+  joinedAt: string;
+  lastActive: string | null;
+  streak: number;
+  totalCards: number;
+  retentionRate: number;
+  cardsDue: number;
+}
+
+export interface ShareData {
+  id: string;
+  teacherName: string;
+  classroomName: string;
+  expiresAt: string;
+  words: ExportWordV2[];
+}
+
+export async function createClassroom(token: string, name: string): Promise<Classroom> {
+  const res = await fetch(`${API_URL}/classroom`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ name }),
+  });
+  if (!res.ok) throw new Error(`Create classroom failed: ${res.status}`);
+  return res.json() as Promise<Classroom>;
+}
+
+export async function fetchClassrooms(token: string): Promise<Classroom[]> {
+  const res = await fetch(`${API_URL}/classroom`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(`Fetch classrooms failed: ${res.status}`);
+  return res.json() as Promise<Classroom[]>;
+}
+
+export async function fetchStudents(token: string, classroomId: string): Promise<ClassroomStudent[]> {
+  const res = await fetch(`${API_URL}/classroom/${classroomId}/students`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(`Fetch students failed: ${res.status}`);
+  return res.json() as Promise<ClassroomStudent[]>;
+}
+
+export async function getInviteLink(token: string, classroomId: string): Promise<{ inviteCode: string; inviteLink: string }> {
+  const res = await fetch(`${API_URL}/classroom/${classroomId}/invite`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(`Get invite link failed: ${res.status}`);
+  return res.json() as Promise<{ inviteCode: string; inviteLink: string }>;
+}
+
+export async function joinClassroom(token: string, inviteCode: string): Promise<Classroom> {
+  const res = await fetch(`${API_URL}/classroom/join`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ inviteCode }),
+  });
+  if (!res.ok) throw new Error(`Join classroom failed: ${res.status}`);
+  return res.json() as Promise<Classroom>;
+}
+
+export async function createShare(token: string, classroomId: string, words: ExportWordV2[]): Promise<{ id: string; shareLink: string }> {
+  const res = await fetch(`${API_URL}/share`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ classroomId, words }),
+  });
+  if (!res.ok) throw new Error(`Create share failed: ${res.status}`);
+  return res.json() as Promise<{ id: string; shareLink: string }>;
+}
+
+export async function getShare(shareId: string): Promise<ShareData> {
+  const res = await fetch(`${API_URL}/share/${shareId}`);
+  if (!res.ok) throw new Error(`Get share failed: ${res.status}`);
+  return res.json() as Promise<ShareData>;
 }

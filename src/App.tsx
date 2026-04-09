@@ -5,7 +5,9 @@ import { HomePage } from './pages/HomePage';
 import { StudyPage } from './pages/StudyPage';
 import { SummaryPage } from './pages/SummaryPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
+import { DashboardPage } from './pages/DashboardPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { ShareImportPage } from './pages/ShareImportPage';
 import { useStreakStore } from './store/useStreakStore';
 import { useSettingsStore } from './store/useSettingsStore';
 import { useCardStore } from './store/useCardStore';
@@ -85,7 +87,9 @@ function App() {
             <Route path="/study" element={<StudyPage />} />
             <Route path="/summary" element={<SummaryPage />} />
             <Route path="/analytics" element={<AnalyticsPage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/share/:id" element={<ShareImportPage />} />
           </Routes>
         </main>
         <TabBar />

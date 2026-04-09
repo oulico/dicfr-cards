@@ -49,6 +49,7 @@ export interface SerializedFSRSCard {
 
 export interface ExportWordV2 extends ExportWordBase {
   fsrsCard: SerializedFSRSCard;
+  cardId?: string;
 }
 
 export type ExportWord = ExportWordV1 | ExportWordV2;
